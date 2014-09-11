@@ -1,0 +1,8 @@
+[package]
+
+name = "modc"
+version = "0.0.1"
+authors = ["Kevin Mehall <km@kevinmehall.net>"]
+
+[dependencies.yaml]
+git = "https://github.com/kevinmehall/libyaml-rust"
