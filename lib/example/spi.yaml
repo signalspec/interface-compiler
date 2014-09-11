@@ -1,0 +1,42 @@
+---
+component: spi-lpc18xx
+backend: c
+struct: spi_state
+concurrency: shared
+
+begin: begin()
+end: end()
+
+args_in:
+  base: ptr
+  cs:
+    actions:
+      low:
+        to_begin: cs_low
+      high:
+        to_begin: cs_high
+  isr:
+    actions:
+      fire:
+        on_begin: |
+          transfer_end(self, self->spi->DATA);
+
+actions:
+  transaction:
+    begin: |
+      cs_low(self);
+    end: |
+      cs_high(self);
+
+    actions:
+      transfer:
+        args_in:
+          mo: byte
+
+        args_out:
+          mi: byte
+
+        on_begin: |
+          self->spi->DATA = mo;
+
+        to_end: transfer_end
