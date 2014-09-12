@@ -2,7 +2,6 @@
 component: spi-lpc18xx
 backend: c
 struct: spi_state
-concurrency: shared
 
 begin: begin()
 end: end()
@@ -23,6 +22,14 @@ args_in:
 
 actions:
   transaction:
+    args_in:
+      clock_speed:
+        type: int
+        configure: self->SPI->CDIV = calculate_clock(clock_speed)
+      mode:
+        type: int
+        configure: self->SPI->MODE = mode
+
     begin: |
       cs_low(self);
     end: |
