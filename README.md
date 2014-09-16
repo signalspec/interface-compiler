@@ -66,14 +66,14 @@ This is similar to run length encoding (for things backed by sampled signals), l
 
 Components are defined in .yaml files. It's probably useful to look at [an example](lib/example/spi.yaml) when reading this section.
 
-The top level object specifies the implementation language and language-specific options:
+The top level mapping specifies the implementation language and language-specific options:
 
 ```
 backend: c
 struct: spi_state
 ```
 
-The top level object (the existence of the component itself) is itself an action and contains the action properties below.
+The top level mapping (the existence of the component itself) is itself an action and contains the action properties below.
 
 #### Actions
 
@@ -87,19 +87,23 @@ The choice of `on_begin` or `to_begin` defines whether this component begins the
 
 The choice of `on_end` or `to_end` defines whether this component ends the event, or the one using it does. Therefore, it is an error to specify both.
 
-`args_in` declares the input arguments passed into the action when it begins, and `args_end` declares the output arguments passed out of the action on end. See "Arguments" below for the structure of these objects. Argument names may not be duplicated between `in` and `out`.
+`args_in` declares the input arguments passed into the action when it begins, and `args_end` declares the output arguments passed out of the action on end. See "Arguments" below for the structure of these maps. Argument names may not be duplicated between `in` and `out`.
 
 `actions` declares the sub-actions of this action. The property is a name-value map, with the values having the structure defined in this section.
 
 #### Arguments
 
-`args_in` and `args_out` contain one name-value pair for each argument. If the value is a string, it is interpreted as a type. Otherwise, it must be an object with the following properties:
+`args_in` and `args_out` contain one name-value pair for each argument. If the value is a string, it is interpreted as a type. Otherwise, it must be a map with the following properties:
 
-`type`: The type of this argument. One of `int`, `real`, `symbol`, `byte`, or `component`. [TODO: type options]. Component arguments are only allowed on the top-level action of the component.
+`type`: The type of this argument. One of `int`, `real`, `symbol`, `byte`, or `component`. Component arguments are only allowed on the top-level action of the component so they can be initialized statically. (this may be relaxed in the future).
 
-`actions`: For component arguments, a map of sub-actions to be used by this component. Keys are action names as declared in the component used, and values are objects with the following keys: `to_begin` / `on_begin` / `to_end` / `on_end`, with the same meaning as in the declaration of actions, but here defining the functions and callbacks for using the component. The `to` / `on` must be the opposite of the one used in the component definition because this calls/is called by the code in the referenced component. `args` is a map of values for persistent parameters.
+`actions`: For component arguments, a map of sub-actions to be used by this component. Keys are action names as declared in the component used, and values are maps with the following keys: `to_begin` / `on_begin` / `to_end` / `on_end`, with the same meaning as in the declaration of actions, but here defining the functions and callbacks for using the component. The `to` / `on` must be the opposite of the one used in the component definition because this calls/is called by the code in the referenced component. `args` is a map of values for persistent parameters.
 
 `configure`: Code snippet executed when the persistent value of this argument changes (see "Persistent parameters" above)
+
+`min`, `max`: For `real` and `int` arguments, the minimum and maximum acceptable values.
+
+`values`: For `symbol` arguments, the list of valid symbols.
 
 ## Bindings
 
